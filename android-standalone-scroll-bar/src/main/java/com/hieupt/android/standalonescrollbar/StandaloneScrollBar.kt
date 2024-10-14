@@ -19,6 +19,8 @@ import kotlin.math.max
  * Created by HieuPT on 12/3/2020.
  */
 class StandaloneScrollBar : FrameLayout {
+    var onShowScrollBar: ((Boolean) -> Unit)? = null
+    var onTouched: (() -> Unit)? = null
 
     private lateinit var orientationHelper: OrientationHelper
 
@@ -324,6 +326,7 @@ class StandaloneScrollBar : FrameLayout {
                 showScrollbar()
                 postAutoHideScrollbar()
             }
+            onShowScrollBar?.invoke(shouldShow)
         }
     }
 
@@ -350,6 +353,7 @@ class StandaloneScrollBar : FrameLayout {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        onTouched?.invoke()
         return if (draggable) orientationHelper.onTouchEvent(event) else false
     }
 
