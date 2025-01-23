@@ -316,11 +316,15 @@ class StandaloneScrollBar : FrameLayout {
         val scrollOffsetRange: Int = scrollableView.scrollOffsetRange
         shouldShow = scrollOffsetRange > 0
         if (shouldShow) {
-            val thumbLength = thumbView.height // 或 width，取决于方向
-            val thumbOffsetRange = orientationHelper.getThumbOffsetRange() - thumbLength
-            thumbOffset = thumbOffsetRange * scrollableView.scrollOffset / scrollOffsetRange
+            val trackLength = orientationHelper.getThumbOffsetRange()
+            val thumbLength = thumbView.height
+            val availableRange = trackLength - thumbLength
+            val scrollRatio = scrollableView.scrollOffset.toFloat() / scrollOffsetRange
+            thumbOffset = (availableRange * scrollRatio).toInt()
+            showScrollbar()
         } else {
             thumbOffset = 0
+            hideScrollbar()
         }
     }
 
