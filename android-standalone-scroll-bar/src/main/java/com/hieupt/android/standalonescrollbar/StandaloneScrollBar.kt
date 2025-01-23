@@ -274,11 +274,13 @@ class StandaloneScrollBar : FrameLayout {
     }
 
     private fun showScrollbar() {
+        onShowScrollBar?.invoke(true)
         visibilityManager?.showScrollbar(trackView, thumbView, isLayoutRtl)
             ?: DefaultVisibilityManager.showScrollbar(trackView, thumbView, isLayoutRtl)
     }
 
     private fun hideScrollbar() {
+        onShowScrollBar?.invoke(false)
         visibilityManager?.hideScrollbar(trackView, thumbView, isLayoutRtl)
             ?: DefaultVisibilityManager.hideScrollbar(trackView, thumbView, isLayoutRtl)
     }
@@ -303,7 +305,8 @@ class StandaloneScrollBar : FrameLayout {
     internal fun getThumbOffset(): Int = thumbOffset
 
     internal fun scrollToThumbOffset(thumbOffset: Int) {
-        val thumbOffsetRange: Int = orientationHelper.getThumbOffsetRange()
+        val thumbLength = thumbView.height
+        val thumbOffsetRange = orientationHelper.getThumbOffsetRange() - thumbLength
         val offset = MathUtils.clamp(thumbOffset, 0, thumbOffsetRange)
         val scrollOffset = scrollableView.scrollOffsetRange * offset / thumbOffsetRange
         scrollTo(scrollOffset)
@@ -312,10 +315,12 @@ class StandaloneScrollBar : FrameLayout {
     private fun updateScrollbarState() {
         val scrollOffsetRange: Int = scrollableView.scrollOffsetRange
         shouldShow = scrollOffsetRange > 0
-        thumbOffset = if (shouldShow) {
-            orientationHelper.getThumbOffsetRange() * scrollableView.scrollOffset / scrollOffsetRange
+        if (shouldShow) {
+            val thumbLength = thumbView.height // 或 width，取决于方向
+            val thumbOffsetRange = orientationHelper.getThumbOffsetRange() - thumbLength
+            thumbOffset = thumbOffsetRange * scrollableView.scrollOffset / scrollOffsetRange
         } else {
-            0
+            thumbOffset = 0
         }
     }
 
@@ -326,7 +331,6 @@ class StandaloneScrollBar : FrameLayout {
                 showScrollbar()
                 postAutoHideScrollbar()
             }
-            onShowScrollBar?.invoke(shouldShow)
         }
     }
 
